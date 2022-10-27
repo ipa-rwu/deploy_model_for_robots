@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: de.fraunhofer.ipa.deployment
+Bundle-ManifestVersion: 2
+Bundle-Name: de.fraunhofer.ipa.deployment
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: de.fraunhofer.ipa.deployment; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.xtext.xbase,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.eclipse.xtext.util,
+ org.eclipse.emf.common,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: de.fraunhofer.ipa.deployment,
+ de.fraunhofer.ipa.deployment.deployModel,
+ de.fraunhofer.ipa.deployment.deployModel.impl,
+ de.fraunhofer.ipa.deployment.deployModel.util,
+ de.fraunhofer.ipa.deployment.generator,
+ de.fraunhofer.ipa.deployment.index,
+ de.fraunhofer.ipa.deployment.parser.antlr,
+ de.fraunhofer.ipa.deployment.parser.antlr.internal,
+ de.fraunhofer.ipa.deployment.parser.antlr.lexer,
+ de.fraunhofer.ipa.deployment.scoping,
+ de.fraunhofer.ipa.deployment.serializer,
+ de.fraunhofer.ipa.deployment.services,
+ de.fraunhofer.ipa.deployment.validation
+Import-Package: org.apache.log4j

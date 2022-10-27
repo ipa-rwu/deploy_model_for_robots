@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: de.fraunhofer.ipa.deployment.editor;singleton:=true
+Automatic-Module-Name: de.fraunhofer.ipa.deployment.editor
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: .
+Bundle-Activator: de.fraunhofer.ipa.deployment.deployModel.presentation.
+ DeployModelEditorPlugin$Implementation
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: de.fraunhofer.ipa.deployment.deployModel.presentation
+Require-Bundle: org.eclipse.core.runtime,org.eclipse.core.resources;visi
+ bility:=reexport,de.fraunhofer.ipa.deployment.edit;visibility:=reexport
+ ,org.eclipse.emf.ecore.xmi;visibility:=reexport,org.eclipse.emf.edit.ui
+ ;visibility:=reexport,org.eclipse.ui.ide;visibility:=reexport,org.eclip
+ se.emfforms.editor;bundle-version="1.8.0"
+Bundle-ActivationPolicy: lazy
+

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+	<extension point="org.eclipse.emf.ecore.generated_package">
+		<package
+			uri = "http://www.fraunhofer.de/ipa/deployment/DeployModel"
+			class = "de.fraunhofer.ipa.deployment.deployModel.DeployModelPackage"
+			genModel = "model/generated/DeployModel.genmodel" />
+	</extension>
+</plugin>

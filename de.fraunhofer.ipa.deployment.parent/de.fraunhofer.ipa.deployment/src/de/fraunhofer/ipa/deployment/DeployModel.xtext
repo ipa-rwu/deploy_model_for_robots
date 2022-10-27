@@ -1,0 +1,331 @@
+grammar de.fraunhofer.ipa.deployment.DeployModel with org.eclipse.xtext.common.Terminals
+
+generate deployModel "http://www.fraunhofer.de/ipa/deployment/DeployModel"
+
+import 'http://www.eclipse.org/emf/2002/Ecore' as ecore
+
+Yaml: {Yaml}
+  (content+=YamlContent)*
+;
+
+YamlContent:
+  rootContent=(MonolithicImplementationDescription|
+    StackImplementationDescription|
+    PackageDescription| 
+    CISetting
+  )
+;
+
+MonolithicImplementationDescription:
+  type='MonolithicImplementationDescription:'
+  INDENT
+    'name:' name=QualifiedName
+  //  TODO: link to rosmodel
+    ('implementsRosModel:'impRosmodel=STRING)?
+    'description:' description=STRING
+    'mode:' mode=ImplementationModeType
+    'branch:' branch=BranchType
+    ('ImplementationArtifactDescription:' implementation=NewImplementationArtifact)?
+  DEDENT
+;
+
+enum ImplementationModeType:
+  DebugMode='debug'|
+  ReleaseMode='release'
+;
+
+BranchType:
+  STRING|'any'
+;
+
+QualifiedName:
+    ID ('.' ID)*;
+
+NewImplementationArtifact:
+	INDENT
+	  'location:' location=(STRING|LOCALPATH|URL)
+	  'deployRequirements:' deployRequirements = DeploymentRequirements
+	  ('resourceRequirements:' resourceRequirements = ResourceRequirements)?
+	  ('buildRequirements:' buildRequirements = BuildRequirements)?
+	  ('startCommands:' startCommands = MultiValueList)?
+  DEDENT
+;
+
+ImplementationArtifactDescription:
+  INDENT
+    impl=(NewImplementationArtifact | ReuseImplementationArtifact) 
+  DEDENT
+;
+
+ReuseImplementationArtifact:
+  'use:' lists+= (ImplementationArtifactAbstract)+
+;
+
+ImplementationArtifactAbstract:
+  PreListElement 'import:' importedNamespace=QualifiedName
+  INDENT
+    'name:' name=[MonolithicImplementationDescription|QualifiedName]
+    ('startCommands:' startCommands = MultiValueList)?
+  DEDENT
+;
+
+DeploymentRequirements:
+  {DeploymentRequirements} 
+  INDENT
+	  requirements += PropertyExpressType+
+  DEDENT
+;
+
+ResourceRequirements:
+	{ResourceRequirements}
+  INDENT
+  	requirements += PropertyExpressType+
+  DEDENT
+;
+
+
+
+PropertyExpressType:
+	CommonPropertySingleValue
+	| CommonPropertyMultiValue
+;
+
+CommonPropertySingleValue:
+  PreListElement 'name:' name=ID
+  INDENT
+    'value:' value = ValueTypes
+  DEDENT
+;
+
+CommonPropertyMultiValue:
+  PreListElement 'name:' name=ID
+  INDENT
+    'value:' value=MultiValueList
+  DEDENT
+;
+
+MultiValueList:
+	MultiValueListPreList 
+	|MultiValueListBracket
+;
+
+MultiValueListPreList:
+	{MultiValueListPreList} 
+	INDENT
+	  (PreListElement values+=ValueTypes)*
+  DEDENT
+;
+
+MultiValueListBracket:
+  '[' (values+=ValueTypes) (',' values+=ValueTypes*)? ']'
+;
+
+ValueTypes:
+	ID | STRING | ScalarNumber
+;
+
+BuildRequirements:
+  {BuildRequirements} 
+  INDENT
+  	'rosDistros:' ReqRosDistros= MultiValueList
+  	('testRosDistros:' ReqTestRosDistros= MultiValueList)?
+	  ('dependOn:' ReqBuildDependencies = ReqBuildDependencies)?
+	  ('aptRepositories:' ReqDependencyRepositories = ReqDependencyRepositories)?
+	  ('cMakeArgs:' ReqCMakeArgs=MultiValueList)?
+  DEDENT
+;
+
+
+ReqBuildDependencies:
+  {ReqBuildDependencies} 
+  INDENT
+    (dependencies+=DependencyTypes)*
+  DEDENT
+;
+
+DependencyTypes:
+  LocalPackage | GitPackage
+;
+
+LocalPackage:
+	PreListElement 'name:' name = [MonolithicImplementationDescription|QualifiedName]
+;
+
+GitPackage:
+	PreListElement 'name:' name = ID
+  INDENT
+  	'location:' path = URL
+  	('visibility:' visibility = ID)?
+  DEDENT
+;
+
+ReqDependencyRepositories:
+  INDENT
+  children+=(AptRepositoryInstance)+
+	DEDENT
+;
+
+AptRepositoryInstance:
+  PreListElement 'name:' name=ID
+  INDENT
+    'keyLink:' keyLink=URL
+    'repositoryPath:' repositoryPath=URL
+    ('updateRosDep:' updateRosDep=URL)?
+  DEDENT
+;
+
+StackImplementationDescription:
+  type='StackImplementationDescription:'
+  INDENT
+    'name:' name=QualifiedName
+  //  TODO: link to rosmodel
+    ('implementsRosModel:'impRosmodel=QualifiedName)?
+    'description:' description=STRING
+    'mode:' mode=ImplementationModeType
+    "ImplementationArtifactDescription:" impl=ImplementationArtifactDescription
+  DEDENT
+;
+
+PackageDescription:
+  type='PackageDescription'':'
+  INDENT
+  	'name:' name=QualifiedName
+    'imageDescription:'
+	  INDENT
+	    imageDescription=ImageDescription
+	  DEDENT
+    'repositoryDescription:'
+	    repositoryDescription=RepositoryDescription
+  DEDENT
+;
+
+ImageDescription:
+  'types:' types = MultiValueList
+  'applyToImplementations:' appiledImplementations = MultiMonolithicImplementationNameList
+  'imageTags:' imageTags = MultiValueList
+;
+
+RepositoryDescription:
+	INDENT
+  	(spec+=RepositorySpec)+
+  DEDENT
+;
+
+RepositorySpec:
+  PreListElement 'name:' name=ID
+  INDENT
+      repository=Repository
+  DEDENT
+;
+
+Repository:
+  'type:' type = ID
+  ('path:' path=STRING)?
+;
+
+
+CISetting:
+  type='CISetting:'
+  INDENT
+  	'name:' name=QualifiedName
+  	'ciTypes:' ciTypes = MultiValueList
+  	'applyToImplementations:' appliedRepos=MultiMonolithicImplementationNameList
+  	'branchPrefixType:' reqBranchPrefix=ID
+  	ciParameters+=(CIParameters)*
+  DEDENT
+;
+
+MultiMonolithicImplementationNameList:
+	MultiMonolithicImplementationNamePreList|
+	MultiMonolithicImplementationNameListBracket
+;
+
+MultiMonolithicImplementationNamePreList:
+	{MultiMonolithicImplementationNamePreList} INDENT
+	  (PreListElement values+=[MonolithicImplementationDescription|QualifiedName])*
+  DEDENT
+;
+
+MultiMonolithicImplementationNameListBracket:
+  '[' (values+=[MonolithicImplementationDescription|QualifiedName]) (',' values+=[MonolithicImplementationDescription|QualifiedName]*)? ']'
+;
+
+CIParameters:
+	type = ID":"
+	INDENT
+	(parameters += GroupedProperties)+
+	DEDENT
+;
+
+GroupedProperties:
+	type = ID":"
+  INDENT
+  	(properties += PropertyExpressType)+
+  DEDENT
+;
+
+enum BOOLEAN: 
+	FALSE='false'|TRUE='true'
+;
+
+PreListElement hidden(SL_COMMENT):
+  '-';
+
+ScalarNumber:
+  (Number Unit?)
+;
+
+Number:
+  INT|
+  FLOAT
+;
+
+Unit:
+  ScalarUnitSize|ScalarUnitTime|ScalarUnitFrequency
+;
+
+// 3.2.6.4 scalar-unit.size
+ScalarUnitSize:
+  ('B'|'b'
+  'KB'|'kb'|'kB'|'Kb'|
+  'MB'|'mb'|'mB'|'Mb'|
+  'GB'|'gb'|'Gb'|'gB'|
+  'TB'|'tb'|'Tb'|'tB')
+;
+
+// 3.2.6.5 scalar-unit.time
+ScalarUnitTime:
+  ('d'|'h'|'m'|'s'|'ms'|'us'|'ns')
+;
+
+ScalarUnitFrequency:
+  ('Hz'|'kHz'|'MHz'|'GHz')
+;
+
+terminal LOCALPATH:
+   (
+    '"'(('/')|('./')|('../')|('.'))
+    ('a'..'z'|'A'..'Z'|'0'..'9'|'_'|'-')*
+    '"'
+   )
+;
+
+terminal FLOAT returns ecore::EFloat: INT '.' INT;
+
+terminal URL:
+  (
+    '"'
+    (
+      (('http'('s')?'://')|('git@'))
+      ('a'..'z'|'A'..'Z'|'0'..'9'|'_'|'\\'|'/'|'='|'?'|'!'|'('|')'|'.'|'-'|':')*
+    )'"'|
+    'localhost'|
+    '"'('a'..'z'|'A'..'Z'|'0'..'9'|'_'|'-')*':'
+    ('0'..'9')*'"'
+  )
+;
+
+terminal SL_COMMENT: '#' !('\n'|'\r')*;
+
+terminal INDENT: 'synthetic:INDENT';
+terminal DEDENT: 'synthetic:DEDENT';
