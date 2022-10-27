@@ -27,6 +27,7 @@
 		<module>de.fraunhofer.ipa.deployment.target</module>
 		<module>de.fraunhofer.ipa.deployment.tests</module>
 		<module>de.fraunhofer.ipa.deployment.ui.tests</module>
+		<module>de.fraunhofer.ipa.deployment.feature</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
