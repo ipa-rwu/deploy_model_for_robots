@@ -230,7 +230,7 @@ public class DeployModelValidator extends AbstractDeployModelValidator {
 				map(e -> DeployModelUtils.camelToLowerUnderscore(e.name())).
 				collect(Collectors.toList());
 		System.out.println(versionList.toString());
-		List<String> list = Stream.concat(distroList.stream(), versionList.stream()).toList();
+		List<String> list = Stream.concat(distroList.stream(), versionList.stream()).collect(Collectors.toList());
 		EList<String> reqRosDistros = buildReq.getReqRosDistros().getValues();
 		EList<String> reqTestRosDistros = buildReq.getReqTestRosDistros().getValues();
 		
